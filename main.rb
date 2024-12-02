@@ -19,7 +19,7 @@ class Player
   # Метод для подсчёта очков, учитывая особенность туза
   def points
     total_points = 0
-    aces_count = 0  # Считаем количество тузов(aces)
+    aces_count = 0 # Считаем количество тузов(aces)
 
     @cards.each do |card|
       total_points += card.value
@@ -116,7 +116,7 @@ class Game
 
   def start
     loop do
-      take_bets # сделать ставки/ Ее смысл что берет у каждого игрока баланс и уменьшает на 10, если баланс 0, то игра окончена, то высести результаты
+      take_bets # Применение ставок
       play_round
       calculate_results
       break unless play_again?
@@ -124,22 +124,38 @@ class Game
   end
 
   private
+
+  # Метод для ставок
   def take_bets
-    #здесь логика ставок
+    @players.each do |player|
+      if player.balance < 10
+        puts "#{player.class.name} не может сделать ставку, так как у него недостаточно средств."
+        puts "Игра завершена."
+        exit # Завершаем игру, если у кого-то из игроков недостаточно денег для ставки
+      else
+        player.instance_variable_set(:@balance, player.balance - 10) # Снимаем 10 долларов с баланса игрока
+        puts "#{player.class.name} поставил 10 долларов. Баланс: #{player.balance}."
+      end
+    end
   end
+
+  # Метод для проведения раунда игры
   def play_round
     Round.new(@players, @deck).play
   end
+
+  # Метод для подсчета результатов и определения победителя
   def calculate_results
-    # Логика подсчета итогов
+    # Реализуем логику подсчета итогов игры
   end
 
+  # Метод для предложения продолжить игру
   def play_again?
     puts 'Играть снова? (y/n)'
     gets.chomp.downcase == 'y'
   end
 
   def process_winner(winner)
-    # выводит информацию о победителе
+    # Выводит информацию о победителе
   end
 end
