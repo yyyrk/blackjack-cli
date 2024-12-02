@@ -1,3 +1,7 @@
+require_relative 'player'
+require_relative 'deck'
+require_relative 'round'
+
 class Game
   def initialize
     @players = [User.new, Dealer.new]
@@ -6,11 +10,15 @@ class Game
 
   def start
     loop do
-      take_bets      # Сделать ставки
-      play_round     # Играть раунд
-      calculate_results  # Подсчитать результаты
-      break unless play_again?  # Запросить, хочет ли игрок продолжить
+      take_bets
+      break if @players.any? { |player| player.balance <= 0 }
+
+      play_round
+      calculate_results
+      break unless play_again?
     end
+
+    puts 'Игра завершена, у одного из игроков закончились деньги.'
   end
 
   private
@@ -19,13 +27,15 @@ class Game
   def take_bets
     @players.each do |player|
       if player.balance >= 10
+        puts "#{player.class} ставит 10 долларов."
         player.balance -= 10
       else
-        puts "#{player.class} не может сделать ставку, так как не хватает денег!"
-        exit
+        puts "#{player.class} не может поставить ставку. У него недостаточно денег."
+        break
       end
     end
   end
+
 
   # Игровой процесс раунда
   def play_round
@@ -37,25 +47,21 @@ class Game
     player_points = @players.first.points
     dealer_points = @players.last.points
 
-    puts "Игрок: #{player_points}, Дилер: #{dealer_points}"
-
     if player_points > 21
-      puts 'Игрок проиграл, перебрал очки!'
-      @players.last.balance += 20  # Дилер выигрывает
+      puts "Игрок проиграл, превысил 21 очко."
     elsif dealer_points > 21
-      puts 'Дилер проиграл, перебрал очки!'
-      @players.first.balance += 20  # Игрок выигрывает
+      puts "Дилер проиграл, превысил 21 очко."
+    elsif player_points == dealer_points
+      puts "Ничья! Баланс игроков возвращен."
     elsif player_points > dealer_points
-      puts 'Игрок выигрывает!'
-      @players.first.balance += 20  # Игрок выигрывает
-    elsif dealer_points > player_points
-      puts 'Дилер выигрывает!'
-      @players.last.balance += 20  # Дилер выигрывает
+      puts "Игрок победил!"
+      @players.first.balance += 20  # Игрок выигрывает 20 долларов
     else
-      puts 'Ничья! Деньги возвращаются игрокам.'
-      @players.each { |player| player.balance += 10 }  # Возврат ставок
+      puts "Дилер победил!"
+      @players.last.balance += 20  # Дилер выигрывает 20 долларов
     end
   end
+
 
   # Запросить, хочет ли игрок продолжить игру
   def play_again?
@@ -66,5 +72,10 @@ class Game
   # Обработка победителя
   def process_winner(winner)
     puts "Победитель: #{winner.class}"
+    puts "Игроки, ваши карты:"
+    @players.each do |player|
+      puts "#{player.class}: #{player.cards.map { |card| card.to_s }.join(', ')} - Очки: #{player.points}"
+    end
   end
+
 end

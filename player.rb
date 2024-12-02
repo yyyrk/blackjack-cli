@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require_relative 'card'
 
 class Player
   attr_reader :cards, :balance
@@ -19,20 +20,26 @@ class Player
   # Метод для подсчёта очков, учитывая особенность туза
   def points
     total_points = 0
-    aces_count = 0 # Считаем количество тузов(aces)
+    ace_count = 0
 
+    # Подсчитываем очки всех карт
     @cards.each do |card|
-      total_points += card.value
-      aces_count += 1 if card.rank == 'A'
+      if card.rank == 'A'
+        ace_count += 1
+        total_points += 11
+      else
+        total_points += card.value
+      end
     end
 
-    # Если есть тузы, и сумма с ними меньше 12, то мы можем сделать туз равным 11
-    aces_count.times do
-      total_points += 10 if total_points + 10 <= 21
+    # Если туз (ace) и сумма больше 21, меняем туз на 1
+    ace_count.times do
+      total_points -= 10 if total_points > 21
     end
 
     total_points
   end
+
 
   def make_move
     raise NotImplementedError, 'Этот метод должен быть определен в подклассах!!!'
