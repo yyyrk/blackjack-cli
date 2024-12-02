@@ -1,37 +1,44 @@
-player
-dealer
-deck
-carf
-round
-
 class Player
   def initialize
     @cards = []
     @balance = 100
   end
-  points
-  make_move
+  def points
+    @balance
+  end
+  def make_move
+
+  end
 end
 
 class User < Player
   def make_move
-    puts 1.
+    puts 1.# деламе ходы и на выбор действия, потом проверяю в отдельном методе приватном
 
-      case 1
+      case 1 #:take :skip :open
     :take
   end
 end
 
-class Dealer < Player
+class Dealer < Player #можно сделать дилера чтобы он на угад ходил
   def make_move
     points > 17 ? :take : :skip
   end
 end
 
 class Deck
+  initialize
+  # @cards = 52.times.map do @cards << Card.new #Псевдокод, где 52 раза генерим карты
   def take_card
-    Card.new
+    generate_deck if @cards.empty?
   end
+
+
+  private
+  def shuffle_cards
+  end
+
+
 end
 
 class Round
@@ -49,7 +56,8 @@ class Round
   private
 
   def prepare
-    @players.each do |player| # очищает эти карты из массива
+    player.cards = []
+    player.cards << deck.take_card #по 2 раза
     end
 
     def make_moves; end
@@ -58,14 +66,13 @@ class Round
       @players.sample
     end
 
-    # @players.each move = player.make_move #игрок делает ход
-    # case make_move
-    # when :skip
-    # when :take
-    #       players << deck.take_card
-    # when :open
-    #   finish_round
-    # end
+  #=================
+  @players.each move = player.make_move #игрок делает ход
+  make_move = player.make_move
+  case make_move
+  when :take player << deck.take_card
+  when :skip
+  when :open finish_round
   end
 end
 
@@ -76,8 +83,29 @@ class Game
   end
 
   def start
-    # fasdfas\
+    loop do
+    take_bets#сделать ставки/ Ее смысл что берет у каждого игрока баланс и уменьшает на 10, если баланс 0, то игра окончена, то высести результаты
+    play_round
+    calculate_results # берет игроков, смотрит их очки и начисляет выйгрыш
+    end
     winner = Round.new(@players, @deck)
     process_winner(winner)
   end
+
+  private
+  def take_bets
+
+  end
+  def play_round
+    Round.new(@players, @deck).play
+  end
+  def calculate_results
+
+  end
 end
+
+
+
+
+  deck = Deck.new
+  deck.deal_card
