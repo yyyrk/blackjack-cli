@@ -1,25 +1,17 @@
+require_relative 'player'
+require_relative 'user'
+require_relative 'dealer'
+require_relative 'deck'
 require_relative 'card'
+require_relative 'round'
+require_relative 'game'
 
+def start_game
+  puts "Добро пожаловать в игру Blackjackf в CLI формате!"
 
-
-
-class User < Player # у него есть опции:take :skip :open
-  def make_move
-    puts 'Уважаемый Игрок, Вас доступны следующие действсия:'
-    print '1. Skip. 2. Take card. 3 Open Cards. Выберите цифру: '# деламе ходы и на выбор действия, потом проверяю в отдельном методе приватном
-    case action
-    when 1 then :skip
-    when 2 then :take
-    when 3 then :open_card
-    else
-      puts 'Нет такого пункта в меню!!!'
-      make_move
-    end
-  end
+  game = Game.new
+  game.start
 end
 
-class Dealer < Player # можно сделать дилера чтобы он на угад ходил в будущем
-  def make_move
-    points > 17 ? :take : :skip
-  end
-end
+
+start_game
