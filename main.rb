@@ -1,4 +1,5 @@
 class Player
+  attr_reader :cards, :balance
   def initialize
     @cards = []
     @balance = 100
@@ -7,22 +8,32 @@ class Player
   def add_card(card)
     @cards << card
   end
-  def reset_cards;  end # cбрасывает карты перед новым раундом
+  def reset_cards # cбрасывает карты перед новым раундом
+    @cards.clear
+  end
 
   def points
-    @balance
+    @balance # здесь будет логика подсчета очков
   end
-  def make_move;  end
+  def make_move # показывает ход игрока или дилера и переопред в подклассах
+    raise NotImplementedError, 'Этот метод должен быть определен в подклассах!!!'
+  end
 
 
 end
 
 class User < Player  # у него есть эти опции:take :skip :open
   def make_move
-    puts 1.# деламе ходы и на выбор действия, потом проверяю в отдельном методе приватном
-
-      case 1
-    :take
+    puts 'Уважаемый Игрок, Вас доступны следующие действсия:'
+    print '1. Skip. 2. Take card. 3 Open Cards. Выберите цифру: '# деламе ходы и на выбор действия, потом проверяю в отдельном методе приватном
+    case action
+    when 1 then :skip
+    when 2 then :take
+    when 3 then :open_card
+    else
+      puts 'Нет такого пункта в меню!!!'
+      make_move
+    end
   end
 end
 
@@ -33,15 +44,22 @@ class Dealer < Player #можно сделать дилера чтобы он н
 end
 
 class Deck #здесь управляем колодой карт.
-  initialize
-  # @cards = 52.times.map do @cards << Card.new #Псевдокод, где 52 раза генерим карты
+  def initialize
+    generate_deck
+    shuffle_cards
+  end
   def take_card
     generate_deck if @cards.empty?
+    @cards.pop # удаляет и возвращает последний элемент массива @cards
   end
 
   private
-  def shuffle_cards; end
-  def generate_deck; end
+  def shuffle_cards
+    @cards.shuffle! # изменяет текущий(!) массив и возвращает его
+  end
+  def generate_deck
+    # создание 52 карт
+  end
 end
 
 class Round #этот класс это абстракция игрового раунда
@@ -59,60 +77,51 @@ class Round #этот класс это абстракция игрового р
   private
 
   def prepare
-    player.cards = []
-    player.cards << deck.take_card #по 2 раза
+    @players.each do |player|
+      2.times { player.add_card(@deck.take_card) }
     end
+  end
+  def make_moves
+      # здесь логика ходов
+  end
 
-    def make_moves; end # это цикл ходов игроков
-
-    def define_winner
-      @players.sample
-    end
-
-  #=================
-  @players.each move = player.make_move #игрок делает ход
-  make_move = player.make_move
-  case make_move
-  when :take player << deck.take_card
-  when :skip
-  when :open finish_round
+  def define_winner
+      #подсчет очков и определение победителя
   end
 end
 
 class Game
   def initialize
-    @players = [User.new('Player name'), Dealer.new]
+    @players = [User.new, Dealer.new]
     @deck = Deck.new
   end
 
   def start
     loop do
-    take_bets # сделать ставки/ Ее смысл что берет у каждого игрока баланс и уменьшает на 10, если баланс 0, то игра окончена, то высести результаты
-    play_round
-    calculate_results # берет игроков, смотрит их очки и начисляет выйгрыш
+      take_bets # сделать ставки/ Ее смысл что берет у каждого игрока баланс и уменьшает на 10, если баланс 0, то игра окончена, то высести результаты
+      play_round
+      calculate_results
+      break unless play_again?
     end
-    winner = Round.new(@players, @deck)
-    process_winner(winner)
   end
 
   private
-  def take_bets #обрабатываем здесь ставки игроков
-
+  def take_bets
+    #здесь логика ставок
   end
   def play_round
     Round.new(@players, @deck).play
   end
-  def calculate_results # обновляет результаты (балансы игроков)
-
+  def calculate_results
+    # Логика подсчета итогов
   end
 
-  def process_winner(winner) # выводит информацию о победителе
+  def play_again?
+    puts 'Играть снова? (y/n)'
+    gets.chomp.downcase == 'y'
+  end
 
+  def process_winner(winner)
+    # выводит информацию о победителе
   end
 end
-
-
-
-
-  deck = Deck.new
-  deck.deal_card
