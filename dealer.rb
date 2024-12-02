@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class Dealer < Player
   def make_move
     if points >= 17

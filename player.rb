@@ -1,8 +1,8 @@
-# frozen_string_literal: true
 require_relative 'card'
 
 class Player
   attr_reader :cards, :balance
+  attr_writer :balance
 
   def initialize
     @cards = []

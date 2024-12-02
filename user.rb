@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class User < Player
   def make_move
     puts 'Уважаемый Игрок, Вас доступны следующие действия:'
