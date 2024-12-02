@@ -18,11 +18,9 @@ class Player
   def make_move # показывает ход игрока или дилера и переопред в подклассах
     raise NotImplementedError, 'Этот метод должен быть определен в подклассах!!!'
   end
-
-
 end
 
-class User < Player  # у него есть эти опции:take :skip :open
+class User < Player  # у него есть опции:take :skip :open
   def make_move
     puts 'Уважаемый Игрок, Вас доступны следующие действсия:'
     print '1. Skip. 2. Take card. 3 Open Cards. Выберите цифру: '# деламе ходы и на выбор действия, потом проверяю в отдельном методе приватном
