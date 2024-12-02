@@ -1,5 +1,8 @@
+require_relative 'card'
+
 class Player
   attr_reader :cards, :balance
+
   def initialize
     @cards = []
     @balance = 100
@@ -8,19 +11,36 @@ class Player
   def add_card(card)
     @cards << card
   end
-  def reset_cards # cбрасывает карты перед новым раундом
+
+  def reset_cards
     @cards.clear
   end
 
+  # Метод для подсчёта очков, учитывая особенность туза
   def points
-    @balance # здесь будет логика подсчета очков
+    total_points = 0
+    aces_count = 0  # Считаем количество тузов(aces)
+
+    @cards.each do |card|
+      total_points += card.value
+      aces_count += 1 if card.rank == 'A'
+    end
+
+    # Если есть тузы, и сумма с ними меньше 12, то мы можем сделать туз равным 11
+    aces_count.times do
+      total_points += 10 if total_points + 10 <= 21
+    end
+
+    total_points
   end
-  def make_move # показывает ход игрока или дилера и переопред в подклассах
+
+  def make_move
     raise NotImplementedError, 'Этот метод должен быть определен в подклассах!!!'
   end
 end
 
-class User < Player  # у него есть опции:take :skip :open
+
+class User < Player # у него есть опции:take :skip :open
   def make_move
     puts 'Уважаемый Игрок, Вас доступны следующие действсия:'
     print '1. Skip. 2. Take card. 3 Open Cards. Выберите цифру: '# деламе ходы и на выбор действия, потом проверяю в отдельном методе приватном
@@ -35,7 +55,7 @@ class User < Player  # у него есть опции:take :skip :open
   end
 end
 
-class Dealer < Player #можно сделать дилера чтобы он на угад ходил в будущем
+class Dealer < Player # можно сделать дилера чтобы он на угад ходил в будущем
   def make_move
     points > 17 ? :take : :skip
   end
