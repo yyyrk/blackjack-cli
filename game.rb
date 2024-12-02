@@ -1,7 +1,3 @@
-require_relative 'player'
-require_relative 'deck'
-require_relative 'round'
-
 class Game
   def initialize
     @players = [User.new, Dealer.new]
@@ -9,6 +5,8 @@ class Game
   end
 
   def start
+    puts "Добро пожаловать в игру Blackjack, #{ask_for_name}!"
+
     loop do
       take_bets
       break if @players.any? { |player| player.balance <= 0 }
@@ -23,26 +21,50 @@ class Game
 
   private
 
-  # Логика ставок
+  # Здесь запрашиваю имя пользователся
+  def ask_for_name
+    print 'Введите ваше имя латиницей: '
+    gets.chomp
+  end
+
   def take_bets
     @players.each do |player|
       if player.balance >= 10
-        puts "#{player.class} ставит 10 долларов."
+        puts "#{player.name || player.class} ставит 10 долларов."
         player.balance -= 10
       else
-        puts "#{player.class} не может поставить ставку. У него недостаточно денег."
+        puts "#{player.name || player.class} не может поставить ставку. У него недостаточно денег."
         break
       end
     end
   end
 
-
-  # Игровой процесс раунда
   def play_round
     Round.new(@players, @deck).play
+
+
+    puts "Твои карты:"
+    display_cards(@players[0])
+
+
+    puts "Карты дилера:"
+    display_dealer_cards(@players[1])
   end
 
-  # Подсчет результатов
+  # Здесь вывожу карты игрока
+  def display_cards(player)
+    player.cards.each_with_index do |card, index|
+      puts "Карт #{index + 1}: #{card.to_s}"
+    end
+    puts "Сумма очков у тебя: #{player.points}"
+  end
+
+  # Здесь вывожу карты диллера с скрытием одной из карт
+  def display_dealer_cards(dealer)
+    puts "Карт 1: #{dealer.cards[0].to_s}"
+    puts "Карт 2: #{dealer.cards[1].to_s.gsub(/./, '?')}" # Скрываю вторую карту
+  end
+
   def calculate_results
     player_points = @players.first.points
     dealer_points = @players.last.points
@@ -62,20 +84,8 @@ class Game
     end
   end
 
-
-  # Запросить, хочет ли игрок продолжить игру
   def play_again?
     puts 'Играть снова? (y/n)'
     gets.chomp.downcase == 'y'
   end
-
-  # Обработка победителя
-  def process_winner(winner)
-    puts "Победитель: #{winner.class}"
-    puts "Игроки, ваши карты:"
-    @players.each do |player|
-      puts "#{player.class}: #{player.cards.map { |card| card.to_s }.join(', ')} - Очки: #{player.points}"
-    end
-  end
-
 end

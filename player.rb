@@ -1,12 +1,10 @@
-require_relative 'card'
-
 class Player
-  attr_reader :cards, :balance
-  attr_writer :balance
+  attr_accessor :cards, :balance, :name
 
   def initialize
     @cards = []
     @balance = 100
+    @name = ""
   end
 
   def add_card(card)
@@ -17,12 +15,9 @@ class Player
     @cards.clear
   end
 
-  # Метод для подсчёта очков, учитывая особенность туза
   def points
     total_points = 0
     ace_count = 0
-
-    # Подсчитываем очки всех карт
     @cards.each do |card|
       if card.rank == 'A'
         ace_count += 1
@@ -32,14 +27,11 @@ class Player
       end
     end
 
-    # Если туз (ace) и сумма больше 21, меняем туз на 1
     ace_count.times do
       total_points -= 10 if total_points > 21
     end
-
     total_points
   end
-
 
   def make_move
     raise NotImplementedError, 'Этот метод должен быть определен в подклассах!!!'
