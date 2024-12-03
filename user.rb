@@ -1,11 +1,15 @@
 class User < Player
   def make_move
-    puts 'Уважаемый Игрок, Вас доступны следующие действия:'
+    puts "Твои карты:"
+    cards.each_with_index { |card, index| puts "Карта #{index + 1}: #{card}" }
+    puts "Сумма твоих очков: #{points}"
+
+    puts 'Выберите действие:'
     puts '1. Пропустить ход (Skip)'
     puts '2. Взять карту (Take card)'
     puts '3. Открыть карты (Open cards)'
 
-    print 'Выберите цифру: '
+    print 'Ваш выбор: '
     action = gets.chomp.to_i
 
     case action
@@ -13,7 +17,7 @@ class User < Player
     when 2 then :take
     when 3 then :open_cards
     else
-      puts 'Нет такого пункта в меню!!!'
+      puts 'Неверный выбор! Попробуйте снова.'
       make_move
     end
   end
