@@ -13,15 +13,32 @@ class Round
     define_winner # Подсчитываются результаты и определение победителя
   end
 
-  private
+  def define_winner
+    player = @players[0]
+    dealer = @players[1]
 
-  # Раздача по 2 карты игрокам
-  def prepare
-    @players.each do |player|
-      2.times { player.add_card(@deck.take_card) }
+    if player.points > 21
+      :dealer
+    elsif dealer.points > 21
+      :player
+    elsif player.points == dealer.points
+      :draw
+    elsif player.points > dealer.points
+      :player
+    else
+      :dealer
     end
   end
 
+  private
+
+  # Метод для подготовки к новому раунду: сброс карт и раздача новых
+  def prepare
+    @players.each do |player|
+      player.reset_cards # Сбрасываем карты игрока
+      2.times { player.add_card(@deck.take_card) } # Раздаем по 2 карты
+    end
+  end
   # Здесь логика ходов игроков
   def make_moves
     # Ход игрока
@@ -34,21 +51,14 @@ class Round
     end
   end
 
-  # Считаем очки и определяем победителя
-  def define_winner
-    player_points = points(@players[0])
-    dealer_points = points(@players[1])
-
-    if player_points > 21
-      puts 'Игрок перебрал! Победил дилер.'
-    elsif dealer_points > 21
-      puts 'Дилер перебрал! Победил игрок.'
-    elsif player_points > dealer_points
-      puts 'Игрок победил!'
-    elsif dealer_points > player_points
-      puts 'Дилер победил!'
-    else
-      puts 'Ничья!!!'
+  def display_winner
+    case define_winner
+    when :player
+      puts "Игрок победил!"
+    when :dealer
+      puts "Дилер победил!"
+    when :draw
+      puts "Ничья!"
     end
   end
 

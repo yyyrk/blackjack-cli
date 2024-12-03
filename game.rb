@@ -30,7 +30,7 @@ class Game
   def take_bets
     @players.each do |player|
       if player.balance >= 10
-        puts "#{player.name || player.class} ставит 10 долларов."
+        puts "#{player.name || player.class} ставка 10 долларов"
         player.balance -= 10
       else
         puts "#{player.name || player.class} не может поставить ставку. У него недостаточно денег."
@@ -40,6 +40,8 @@ class Game
   end
 
   def play_round
+    display_balances
+    reset_players_cards
     Round.new(@players, @deck).play
 
 
@@ -54,38 +56,44 @@ class Game
   # Здесь вывожу карты игрока
   def display_cards(player)
     player.cards.each_with_index do |card, index|
-      puts "Карт #{index + 1}: #{card.to_s}"
+      puts "Карта #{index + 1}: #{card.to_s}"
     end
     puts "Сумма очков у тебя: #{player.points}"
   end
 
   # Здесь вывожу карты диллера с скрытием одной из карт
   def display_dealer_cards(dealer)
-    puts "Карт 1: #{dealer.cards[0].to_s}"
-    puts "Карт 2: #{dealer.cards[1].to_s.gsub(/./, '?')}" # Скрываю вторую карту
+    puts "Карта 1: #{dealer.cards[0].to_s}"
+    puts "Карта 2: #{dealer.cards[1].to_s.gsub(/./, '?')}" # Скрываю вторую карту
   end
 
   def calculate_results
-    player_points = @players.first.points
-    dealer_points = @players.last.points
-
-    if player_points > 21
-      puts "Игрок проиграл, превысил 21 очко."
-    elsif dealer_points > 21
-      puts "Дилер проиграл, превысил 21 очко."
-    elsif player_points == dealer_points
-      puts "Ничья! Баланс игроков возвращен."
-    elsif player_points > dealer_points
-      puts "Игрок победил!"
-      @players.first.balance += 20  # Игрок выигрывает 20 долларов
+    winner = Round.new(@players, @deck).define_winner
+    case winner
+    when :player
+      @players[0].balance += 20
+    when :dealer
+      @players[1].balance += 20
     else
-      puts "Дилер победил!"
-      @players.last.balance += 20  # Дилер выигрывает 20 долларов
+      puts "Ставка возвращается игрокам."
     end
   end
 
   def play_again?
     puts 'Играть снова? (y/n)'
     gets.chomp.downcase == 'y'
+  end
+
+  def display_balances
+    puts "\nТекущий баланс игроков:"
+    @players.each do |player|
+      player_type = player.is_a?(User) ? "Игрок" : "Дилер"
+      puts "#{player_type}: $#{player.balance}"
+    end
+    puts "-" * 30
+  end
+
+  def reset_players_cards
+    @players.each(&:reset_cards)
   end
 end
