@@ -1,38 +1,32 @@
 class Player
-  attr_accessor :cards, :balance, :name
+  attr_accessor :name, :cards, :balance
 
-  def initialize
+  def initialize(name = "Игрок")
+    @name = name
     @cards = []
     @balance = 100
-    @name = ""
   end
 
-  def add_card(card)
-    @cards << card
+  def points
+    total = 0
+    ace_count = 0
+
+    @cards.each do |card|
+      if ['J', 'Q', 'K'].include?(card.rank)
+        total += 10
+      elsif card.rank == 'A'
+        total += 11
+        ace_count += 1
+      else
+        total += card.rank.to_i
+      end
+    end
+
+    ace_count.times { total -= 10 if total > 21 }
+    total
   end
 
   def reset_cards
     @cards.clear
-  end
-
-  def points
-    total_points = 0
-    ace_count = 0
-
-    cards.each do |card|
-      if card.rank == 'A'
-        ace_count += 1
-        total_points += 11
-      else
-        total_points += card.value
-      end
-    end
-
-    ace_count.times { total_points -= 10 if total_points > 21 }
-    total_points
-  end
-
-  def make_move
-    raise NotImplementedError, 'Этот метод должен быть определен в подклассах!!!'
   end
 end

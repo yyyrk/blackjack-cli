@@ -1,18 +1,21 @@
 class Game
   def initialize
-    @players = [User.new, Dealer.new]
     @deck = Deck.new
+    @players = [Player.new, Dealer.new] # Игрок и дилер
   end
 
   def start
-    puts "Добро пожаловать в игру Blackjack, #{ask_for_name}!"
+    player_name = ask_for_name
+    @players.first.name = player_name # Устанавливаем имя игрока
+
+    puts "Добро пожаловать в игру Blackjack, #{player_name}!"
 
     loop do
       take_bets
-      break if @players.any? { |player| player.balance <= 0 }
-
+      display_balances
       play_round
       calculate_results
+
       break unless play_again?
     end
 
@@ -21,7 +24,6 @@ class Game
 
   private
 
-  # Здесь запрашиваю имя пользователся
   def ask_for_name
     print 'Введите ваше имя латиницей: '
     gets.chomp
@@ -30,52 +32,111 @@ class Game
   def take_bets
     @players.each do |player|
       if player.balance >= 10
-        puts "#{player.name || player.class} ставка 10 долларов"
+        puts "#{player.name} ставит 10 долларов"
         player.balance -= 10
       else
-        puts "#{player.name || player.class} не может поставить ставку. У него недостаточно денег."
+        puts "#{player.name} не может поставить ставку. У него недостаточно денег."
         break
       end
     end
   end
 
   def play_round
-    display_balances
     reset_players_cards
-    Round.new(@players, @deck).play
+    deal_initial_cards
+    show_player_cards
 
+    player_move
+    dealer_move
 
-    puts "Твои карты:"
-    display_cards(@players[0])
-
-
-    puts "Карты дилера:"
-    display_dealer_cards(@players[1])
+    display_cards(@players[1])  # Показываем карты дилера после хода игрока
   end
 
-  # Здесь вывожу карты игрока
+  def reset_players_cards
+    @players.each(&:reset_cards)
+  end
+
+  def deal_initial_cards
+    2.times do
+      @players.each do |player|
+        player.cards << @deck.deal
+      end
+    end
+  end
+
+  def show_player_cards
+    puts "Твои карты:"
+    display_cards(@players[0])
+  end
+
+  def player_move
+    puts "Выберите действие:"
+    puts "1. Пропустить ход"
+    puts "2. Взять карту"
+    puts "3. Открыть карты"
+    print "Ваш выбор: "
+    choice = gets.chomp.to_i
+
+    case choice
+    when 1
+      puts "Ты пропустил ход."
+    when 2
+      @players[0].cards << @deck.deal
+      puts "Твои новые карты:"
+      display_cards(@players[0])
+    when 3
+      display_cards(@players[0])
+      display_dealer_cards(@players[1])
+      calculate_results
+    else
+      puts "Неверный выбор!"
+    end
+  end
+
+  def dealer_move
+    if @players[1].points < 17
+      @players[1].cards << @deck.deal
+      puts "Дилер берет карту."
+    end
+  end
+
   def display_cards(player)
     player.cards.each_with_index do |card, index|
       puts "Карта #{index + 1}: #{card.to_s}"
     end
-    puts "Сумма очков у тебя: #{player.points}"
+    puts "Сумма очков у #{player.name}: #{player.points}"
   end
 
-  # Здесь вывожу карты диллера с скрытием одной из карт
   def display_dealer_cards(dealer)
-    puts "Карта 1: #{dealer.cards[0].to_s}"
-    puts "Карта 2: #{dealer.cards[1].to_s.gsub(/./, '?')}" # Скрываю вторую карту
+    puts "Карты дилера:"
+    dealer.cards.each_with_index do |card, index|
+      if index == 1
+        puts "Карта #{index + 1}: ??"
+      else
+        puts "Карта #{index + 1}: #{card.to_s}"
+      end
+    end
+    puts "Сумма очков у дилера: #{dealer.points}"
   end
 
   def calculate_results
-    winner = Round.new(@players, @deck).define_winner
-    case winner
-    when :player
-      @players[0].balance += 20
-    when :dealer
-      @players[1].balance += 20
+    player = @players[0]
+    dealer = @players[1]
+
+    if player.points > 21
+      puts "#{player.name} проиграл! Перебор!"
+      dealer.balance += 20
+    elsif dealer.points > 21
+      puts "Дилер проиграл! Перебор!"
+      player.balance += 20
+    elsif player.points > dealer.points
+      puts "#{player.name} победил!"
+      player.balance += 20
+    elsif player.points < dealer.points
+      puts "Дилер победил!"
+      dealer.balance += 20
     else
-      puts "Ставка возвращается игрокам."
+      puts "Ничья! Ставка возвращается."
     end
   end
 
@@ -87,13 +148,8 @@ class Game
   def display_balances
     puts "\nТекущий баланс игроков:"
     @players.each do |player|
-      player_type = player.is_a?(User) ? "Игрок" : "Дилер"
-      puts "#{player_type}: $#{player.balance}"
+      puts "#{player.name}: $#{player.balance}"
     end
     puts "-" * 30
-  end
-
-  def reset_players_cards
-    @players.each(&:reset_cards)
   end
 end
