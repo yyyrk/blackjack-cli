@@ -1,7 +1,7 @@
 class Round
   def initialize(players, deck)
-    @players = players # Массив игроков (игрок и дилер)
-    @deck = deck # Колода карт
+    @players = players
+    @deck = deck
   end
 
   def play
@@ -18,8 +18,8 @@ class Round
   end
 
   def make_moves
-    player_move(@players[0]) # Ход игрока
-    dealer_move(@players[1]) # Ход дилера
+    player_move(@players[0])
+    dealer_move(@players[1])
   end
 
   def player_move(player)
@@ -35,12 +35,11 @@ class Round
     end
   end
 
-  def dealer_move(dealer)
-    return if dealer.points >= 17
-
-    dealer.add_card(@deck.deal)
-    puts "Дилер берет карту."
-  end
+  # def dealer_move(dealer)
+  #   return if dealer.points >= 17
+  #
+  #   dealer.add_card(@deck.deal)        --> ПЕРЕМЕСТИЛ В GAME
+  # end
 
   def display_winner
     case winner

@@ -3,7 +3,7 @@ class Game
 
   def initialize
     @deck = Deck.new
-    @players = [User.new, Dealer.new] # Игрок и дилер
+    @players = [User.new, Dealer.new]
   end
 
   def start
@@ -44,7 +44,7 @@ class Game
     players.each do |player|
       if player.balance >= 10
         player.balance -= 10
-        puts "#{player.name} ставит 10 долларов"
+        puts "#{player.name} ставит 10 $"
       else
         puts "#{player.name} не может поставить ставку. У него недостаточно денег."
         break
@@ -81,10 +81,18 @@ class Game
   end
 
   def dealer_turn
+    puts "Ход дилера:"
     while players[1].points < 17
+      dealer_move(players[1])  # Используем метод для добавления карты
       puts "Дилер берет карту."
-      players[1].cards << deck.deal
+      display_cards(players[1])  # Показываем карты дилера после каждого хода
     end
+  end
+
+  def dealer_move(dealer)
+    return if dealer.points >= 17
+
+    dealer.add_card(@deck.deal)
   end
 
   def display_cards(player)
@@ -111,11 +119,8 @@ class Game
       dealer.balance += 20
     else
       puts "Ничья!!! Ставка возвращается."
-      player.balance += 10  # Исправил - Возвращаем ставки
-      dealer.balance += 10
     end
   end
-
 
   def play_again?
     print 'Играть снова? (y/n): '
@@ -129,15 +134,8 @@ class Game
   end
 
   def display_balances
-    puts "\nТекущий баланс игроков:"
+    puts "\nТекущее количество грошей у игроков:"
     players.each { |player| puts "#{player.name}: $#{player.balance}" }
     puts "-" * 30
-  end
-
-  # Этот метод добавил допом для 3 пункта меню, чтобы открыть карты
-  def reveal_cards
-    display_cards(players.first)
-    display_cards(players[1])
-    calculate_results
   end
 end
