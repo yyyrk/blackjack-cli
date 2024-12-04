@@ -35,12 +35,6 @@ class Round
     end
   end
 
-  # def dealer_move(dealer)
-  #   return if dealer.points >= 17
-  #
-  #   dealer.add_card(@deck.deal)        --> ПЕРЕМЕСТИЛ В GAME
-  # end
-
   def display_winner
     case winner
     when :player then puts "Игрок победил!"

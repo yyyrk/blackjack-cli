@@ -35,7 +35,7 @@ class Game
     player_turn
     dealer_turn
 
-    display_cards(players[1]) # Дилер
+    display_cards(players[1])
 
     calculate_results
   end
@@ -53,7 +53,7 @@ class Game
   end
 
   def reset_round
-    players.each(&:reset_cards) # Сбрасываем карты перед раздачей
+    players.each(&:reset_cards) # Сбрасываю карты перед раздачей
   end
 
   def deal_cards
@@ -73,10 +73,9 @@ class Game
     when :take
       deal_card_to_player
     when :open_cards
-      # Здесь заменяем вызов несуществующего метода на display_cards для открытия карт
       puts "#{players.first.name} открывает карты."
       display_cards(players.first, hide_dealer_cards = false)
-      display_cards(players[1], hide_dealer_cards = false)  # Открываем карты дилера тоже
+      display_cards(players[1], hide_dealer_cards = false)
     end
   end
 
@@ -84,24 +83,24 @@ class Game
   def deal_card_to_player
     players.first.cards << deck.deal
     puts "Ты взял карту."
-    display_cards(players.first) # Отображаем карты только после того, как игрок взял карту
+    display_cards(players.first)
   end
 
   def dealer_turn
     puts "Ход дилера:"
 
-    # Сначала показываем скрытые карты дилера
+    # Сначала показываю скрытые карты дилера
     display_cards(players[1], hide_dealer_cards = true)
 
     while players[1].points < 17
-      dealer_move(players[1])  # Добавляем карту дилеру
+      dealer_move(players[1])  # Добавляю карту дилеру
       puts "Дилер берет карту."
-      display_cards(players[1], hide_dealer_cards = true)  # Все карты дилера скрыты
+      display_cards(players[1], hide_dealer_cards = true)
     end
 
-    # Когда дилер завершит свой ход, раскрываем ему карты
+    # Когда дилер завершит свой ход, раскрываю ему карты
     puts "Карты дилера раскрыты:"
-    # display_cards(players[1], hide_dealer_cards = false)
+    # display_cards(players[1], hide_dealer_cards = false)   ВРЕМЕННО СКРЫЛ ЧТОБЫ ДУБЛИРОВАНИЕ УБРАТЬ
   end
 
   def dealer_move(dealer)
@@ -113,7 +112,7 @@ class Game
   def display_cards(player, hide_dealer_cards = false)
     player.cards.each_with_index do |card, index|
       if hide_dealer_cards && player.is_a?(Dealer)
-        # Если карты скрыты, показываем звездочки
+
         puts "Карта №#{index + 1}: ***"
       else
         # Иначе показываем настоящие карты
