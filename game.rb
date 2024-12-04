@@ -68,11 +68,18 @@ class Game
   def player_turn
     action = players.first.make_move
     case action
-    when :skip then puts "#{players.first.name} пропустил ход."
-    when :take then deal_card_to_player
-    when :open_cards then reveal_cards
+    when :skip
+      puts "#{players.first.name} пропустил ход."
+    when :take
+      deal_card_to_player
+    when :open_cards
+      # Здесь заменяем вызов несуществующего метода на display_cards для открытия карт
+      puts "#{players.first.name} открывает карты."
+      display_cards(players.first, hide_dealer_cards = false)
+      display_cards(players[1], hide_dealer_cards = false)  # Открываем карты дилера тоже
     end
   end
+
 
   def deal_card_to_player
     players.first.cards << deck.deal
@@ -82,11 +89,19 @@ class Game
 
   def dealer_turn
     puts "Ход дилера:"
+
+    # Сначала показываем скрытые карты дилера
+    display_cards(players[1], hide_dealer_cards = true)
+
     while players[1].points < 17
-      dealer_move(players[1])  # Используем метод для добавления карты
+      dealer_move(players[1])  # Добавляем карту дилеру
       puts "Дилер берет карту."
-      display_cards(players[1])  # Показываем карты дилера после каждого хода
+      display_cards(players[1], hide_dealer_cards = true)  # Все карты дилера скрыты
     end
+
+    # Когда дилер завершит свой ход, раскрываем ему карты
+    puts "Карты дилера раскрыты:"
+    # display_cards(players[1], hide_dealer_cards = false)
   end
 
   def dealer_move(dealer)
@@ -95,12 +110,23 @@ class Game
     dealer.add_card(@deck.deal)
   end
 
-  def display_cards(player)
+  def display_cards(player, hide_dealer_cards = false)
     player.cards.each_with_index do |card, index|
-      puts "Карта #{index + 1}: #{card}"
+      if hide_dealer_cards && player.is_a?(Dealer)
+        # Если карты скрыты, показываем звездочки
+        puts "Карта №#{index + 1}: ***"
+      else
+        # Иначе показываем настоящие карты
+        puts "Карта № #{index + 1}: #{card}"
+      end
     end
-    puts "Сумма очков у #{player.name}: #{player.points}"
+
+    # Сумму очков показываем только если карты не скрыты
+    unless hide_dealer_cards
+      puts "Сумма очков у #{player.name}: #{player.points}"
+    end
   end
+
 
   def calculate_results
     player, dealer = players
@@ -129,7 +155,7 @@ class Game
   end
 
   def ask_for_name
-    print 'Введите ваше имя латиницей: '
+    print 'Введите ваше имя: '
     gets.chomp
   end
 
