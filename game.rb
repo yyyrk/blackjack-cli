@@ -27,12 +27,10 @@ class Game
   end
 
   def play_round
-
     take_bets
     reset_round
 
     deal_cards
-    # show_player_cards
 
     player_turn
     dealer_turn
@@ -41,7 +39,6 @@ class Game
 
     calculate_results
   end
-
 
   def take_bets
     players.each do |player|
@@ -132,5 +129,12 @@ class Game
     puts "\nТекущий баланс игроков:"
     players.each { |player| puts "#{player.name}: $#{player.balance}" }
     puts "-" * 30
+  end
+
+  # Этот метод добавил допом для 3 пункта меню, чтобы открыть карты
+  def reveal_cards
+    display_cards(players.first)
+    display_cards(players[1])
+    calculate_results
   end
 end
