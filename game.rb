@@ -1,12 +1,12 @@
 class Game
   def initialize
     @deck = Deck.new
-    @players = [Player.new, Dealer.new] # Игрок и дилер
+    @players = [Player.new, Dealer.new]
   end
 
   def start
     player_name = ask_for_name
-    @players.first.name = player_name # Устанавливаем имя игрока
+    @players.first.name = player_name
 
     puts "Добро пожаловать в игру Blackjack, #{player_name}!"
 
@@ -19,7 +19,7 @@ class Game
       break unless play_again?
     end
 
-    puts 'Игра завершена, у одного из игроков закончились деньги.'
+    puts 'Игра завершена, у одного из игроков закончились деньги или мотивация.'
   end
 
   private
@@ -49,7 +49,7 @@ class Game
     player_move
     dealer_move
 
-    display_cards(@players[1])  # Показываем карты дилера после хода игрока
+    display_cards(@players[1])
   end
 
   def reset_players_cards
@@ -76,6 +76,7 @@ class Game
     puts "3. Открыть карты"
     print "Ваш выбор: "
     choice = gets.chomp.to_i
+    puts "=" * 30
 
     case choice
     when 1
@@ -124,19 +125,19 @@ class Game
     dealer = @players[1]
 
     if player.points > 21
-      puts "#{player.name} проиграл! Перебор!"
+      puts "#{player.name} проиграл!!! Перебор!"
       dealer.balance += 20
     elsif dealer.points > 21
-      puts "Дилер проиграл! Перебор!"
+      puts "Дилер проиграл!!! Перебор!"
       player.balance += 20
     elsif player.points > dealer.points
-      puts "#{player.name} победил!"
+      puts "#{player.name} победил!!!"
       player.balance += 20
     elsif player.points < dealer.points
-      puts "Дилер победил!"
+      puts "Дилер победил!!!"
       dealer.balance += 20
     else
-      puts "Ничья! Ставка возвращается."
+      puts "Ничья!!! Ставка возвращается."
     end
   end
 
