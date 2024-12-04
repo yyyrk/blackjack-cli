@@ -1,10 +1,12 @@
 class Dealer < Player
+  DEFAULT_NAME = 'Дилер'
+
   def initialize
-    super()
-    @name = "Дилер"
+    super(DEFAULT_NAME)
   end
 
   def make_move
-    points >= 17 ? :skip : :take
+    return :skip if points >= 17
+    :take
   end
 end

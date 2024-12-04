@@ -1,39 +1,53 @@
 class Game
+  attr_reader :players, :deck
+
   def initialize
     @deck = Deck.new
-    @players = [Player.new, Dealer.new]
+    @players = [User.new, Dealer.new] # Игрок и дилер
   end
 
   def start
     player_name = ask_for_name
-    @players.first.name = player_name
+    players.first.name = player_name
 
     puts "Добро пожаловать в игру Blackjack, #{player_name}!"
+    game_loop
+  end
 
+  private
+
+  def game_loop
     loop do
-      take_bets
-      display_balances
       play_round
-      calculate_results
-
+      display_balances
       break unless play_again?
     end
 
     puts 'Игра завершена, у одного из игроков закончились деньги или мотивация.'
   end
 
-  private
+  def play_round
 
-  def ask_for_name
-    print 'Введите ваше имя латиницей: '
-    gets.chomp
+    take_bets
+    reset_round
+
+    deal_cards
+    # show_player_cards
+
+    player_turn
+    dealer_turn
+
+    display_cards(players[1]) # Дилер
+
+    calculate_results
   end
 
+
   def take_bets
-    @players.each do |player|
+    players.each do |player|
       if player.balance >= 10
-        puts "#{player.name} ставит 10 долларов"
         player.balance -= 10
+        puts "#{player.name} ставит 10 долларов"
       else
         puts "#{player.name} не может поставить ставку. У него недостаточно денег."
         break
@@ -41,88 +55,50 @@ class Game
     end
   end
 
-  def play_round
-    reset_players_cards
-    deal_initial_cards
-    show_player_cards
-
-    player_move
-    dealer_move
-
-    display_cards(@players[1])
+  def reset_round
+    players.each(&:reset_cards) # Сбрасываем карты перед раздачей
   end
 
-  def reset_players_cards
-    @players.each(&:reset_cards)
-  end
-
-  def deal_initial_cards
-    2.times do
-      @players.each do |player|
-        player.cards << @deck.deal
-      end
-    end
+  def deal_cards
+    2.times { players.each { |player| player.cards << deck.deal } }
   end
 
   def show_player_cards
     puts "Твои карты:"
-    display_cards(@players[0])
+    display_cards(players.first)
   end
 
-  def player_move
-    puts "Выберите действие:"
-    puts "1. Пропустить ход"
-    puts "2. Взять карту"
-    puts "3. Открыть карты"
-    print "Ваш выбор: "
-    choice = gets.chomp.to_i
-    puts "=" * 30
-
-    case choice
-    when 1
-      puts "Ты пропустил ход."
-    when 2
-      @players[0].cards << @deck.deal
-      puts "Твои новые карты:"
-      display_cards(@players[0])
-    when 3
-      display_cards(@players[0])
-      display_dealer_cards(@players[1])
-      calculate_results
-    else
-      puts "Неверный выбор!"
+  def player_turn
+    action = players.first.make_move
+    case action
+    when :skip then puts "#{players.first.name} пропустил ход."
+    when :take then deal_card_to_player
+    when :open_cards then reveal_cards
     end
   end
 
-  def dealer_move
-    if @players[1].points < 17
-      @players[1].cards << @deck.deal
+  def deal_card_to_player
+    players.first.cards << deck.deal
+    puts "Ты взял карту."
+    display_cards(players.first) # Отображаем карты только после того, как игрок взял карту
+  end
+
+  def dealer_turn
+    while players[1].points < 17
       puts "Дилер берет карту."
+      players[1].cards << deck.deal
     end
   end
 
   def display_cards(player)
     player.cards.each_with_index do |card, index|
-      puts "Карта #{index + 1}: #{card.to_s}"
+      puts "Карта #{index + 1}: #{card}"
     end
     puts "Сумма очков у #{player.name}: #{player.points}"
   end
 
-  def display_dealer_cards(dealer)
-    puts "Карты дилера:"
-    dealer.cards.each_with_index do |card, index|
-      if index == 1
-        puts "Карта #{index + 1}: ??"
-      else
-        puts "Карта #{index + 1}: #{card.to_s}"
-      end
-    end
-    puts "Сумма очков у дилера: #{dealer.points}"
-  end
-
   def calculate_results
-    player = @players[0]
-    dealer = @players[1]
+    player, dealer = players
 
     if player.points > 21
       puts "#{player.name} проиграл!!! Перебор!"
@@ -142,15 +118,19 @@ class Game
   end
 
   def play_again?
-    puts 'Играть снова? (y/n)'
-    gets.chomp.downcase == 'y'
+    print 'Играть снова? (y/n): '
+    answer = gets.chomp.downcase
+    answer == 'y'
+  end
+
+  def ask_for_name
+    print 'Введите ваше имя латиницей: '
+    gets.chomp
   end
 
   def display_balances
     puts "\nТекущий баланс игроков:"
-    @players.each do |player|
-      puts "#{player.name}: $#{player.balance}"
-    end
+    players.each { |player| puts "#{player.name}: $#{player.balance}" }
     puts "-" * 30
   end
 end

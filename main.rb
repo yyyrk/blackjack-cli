@@ -9,8 +9,15 @@ require_relative 'game'
 def start_game
   puts "Добро пожаловать в игру Blackjack!"
 
-  game = Game.new
-  game.start
+  begin
+    game = Game.new
+    game.start
+  rescue StandardError => e
+    puts "Произошла ошибка: #{e.message}"
+    puts "Попробуйте начать игру снова."
+    retry
+  end
 end
+
 
 start_game
