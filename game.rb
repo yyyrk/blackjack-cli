@@ -111,8 +111,11 @@ class Game
       dealer.balance += 20
     else
       puts "Ничья!!! Ставка возвращается."
+      player.balance += 10  # Исправил - Возвращаем ставки
+      dealer.balance += 10
     end
   end
+
 
   def play_again?
     print 'Играть снова? (y/n): '
