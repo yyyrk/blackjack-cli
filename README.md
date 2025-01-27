@@ -53,7 +53,7 @@
 ### 1. Клонируйте репозиторий:
 
 ```bash
-git clone https://github.com/your-username/blackjack-cli.git
+git clone https://github.com/yyyrk/blackjack-cli.git
 ```
 
 2. Перейдите в директорию проекта:
