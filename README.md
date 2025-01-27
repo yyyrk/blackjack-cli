@@ -62,13 +62,7 @@ git clone https://github.com/yyyrk/blackjack-cli.git
 cd blackjack-cli
 ```
 
-3. Установите зависимости:
-
-```bash
-bundle install
-```
-
-5. Запустите игру:
+3. Запустите игру:
 
 ```bash
 ruby main.rb
